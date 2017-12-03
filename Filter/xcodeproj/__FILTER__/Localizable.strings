@@ -1,0 +1,7 @@
+// Filter Category Name
+"100" = "__FILTER_CATEGORY_NAME__";
+"101" = "f";
+
+// Filter Name
+"200" = "__FILTER_NAME__";
+"201" = "f";

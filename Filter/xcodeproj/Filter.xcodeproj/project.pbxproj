@@ -1,0 +1,195 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		40A212371FD3BE36002C7C16 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 40A212381FD3BE36002C7C16 /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				40AA75BD1FD3F4C900D968C2 /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = All;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXContainerItemProxy section */
+		40AA75AA1FD3C13300D968C2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 40AA75A61FD3C13200D968C2 /* __FILTER__.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 40AA759D1FD3C13200D968C2;
+			remoteInfo = __FILTER__;
+		};
+		40AA75B71FD3E12400D968C2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 40AA75B31FD3E12400D968C2 /* Threshold.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 40AA759D1FD3C13200D968C2;
+			remoteInfo = Threshold;
+		};
+		40AA75BC1FD3F4C900D968C2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 40AA75B31FD3E12400D968C2 /* Threshold.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 40AA759C1FD3C13200D968C2;
+			remoteInfo = Threshold;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		40AA75A61FD3C13200D968C2 /* __FILTER__.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = __FILTER__.xcodeproj; path = __FILTER__/__FILTER__.xcodeproj; sourceTree = "<group>"; };
+		40AA75B31FD3E12400D968C2 /* Threshold.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Threshold.xcodeproj; path = Threshold/Threshold.xcodeproj; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		40A212301FD3BE17002C7C16 = {
+			isa = PBXGroup;
+			children = (
+				40AA75A61FD3C13200D968C2 /* __FILTER__.xcodeproj */,
+				40AA75B31FD3E12400D968C2 /* Threshold.xcodeproj */,
+			);
+			sourceTree = "<group>";
+		};
+		40AA75A71FD3C13200D968C2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				40AA75AB1FD3C13300D968C2 /* __FILTER__.cpm */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		40AA75B41FD3E12400D968C2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				40AA75B81FD3E12400D968C2 /* Threshold.cpm */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		40A212311FD3BE17002C7C16 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0910;
+				TargetAttributes = {
+					40A212371FD3BE36002C7C16 = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 40A212341FD3BE17002C7C16 /* Build configuration list for PBXProject "Filter" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 40A212301FD3BE17002C7C16;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 40AA75A71FD3C13200D968C2 /* Products */;
+					ProjectRef = 40AA75A61FD3C13200D968C2 /* __FILTER__.xcodeproj */;
+				},
+				{
+					ProductGroup = 40AA75B41FD3E12400D968C2 /* Products */;
+					ProjectRef = 40AA75B31FD3E12400D968C2 /* Threshold.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				40A212371FD3BE36002C7C16 /* All */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		40AA75AB1FD3C13300D968C2 /* __FILTER__.cpm */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = __FILTER__.cpm;
+			remoteRef = 40AA75AA1FD3C13300D968C2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		40AA75B81FD3E12400D968C2 /* Threshold.cpm */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = Threshold.cpm;
+			remoteRef = 40AA75B71FD3E12400D968C2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXTargetDependency section */
+		40AA75BD1FD3F4C900D968C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Threshold;
+			targetProxy = 40AA75BC1FD3F4C900D968C2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		40A212351FD3BE17002C7C16 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		40A212361FD3BE17002C7C16 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		40A212391FD3BE36002C7C16 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		40A2123A1FD3BE36002C7C16 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		40A212341FD3BE17002C7C16 /* Build configuration list for PBXProject "Filter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				40A212351FD3BE17002C7C16 /* Debug */,
+				40A212361FD3BE17002C7C16 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		40A212381FD3BE36002C7C16 /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				40A212391FD3BE36002C7C16 /* Debug */,
+				40A2123A1FD3BE36002C7C16 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 40A212311FD3BE17002C7C16 /* Project object */;
+}

@@ -1,0 +1,12 @@
+.*
+!.gitignore
+
+Thumbs.db
+
+Filter/vcxproj/**/Debug
+Filter/vcxproj/**/Release
+Filter/vcxproj/**/*.aps
+Filter/vcxproj/**/*.vcxproj.user
+Filter/xcodeproj/**/build
+Filter/xcodeproj/**/DerivedData
+Filter/xcodeproj/**/xcuserdata

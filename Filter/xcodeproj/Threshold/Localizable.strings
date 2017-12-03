@@ -1,0 +1,11 @@
+// Filter Category Name
+"100" = "Adjustment";
+"101" = "a";
+
+// Filter Name
+"200" = "Threshold";
+"201" = "t";
+
+// Threshold
+"10000" = "Threshold";
+"10001" = "t";
