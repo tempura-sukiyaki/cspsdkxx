@@ -11,7 +11,7 @@
 1. macOS の場合、[Xcode][xcode] を起動して xcodeproj/Filter.xcodeproj を開いてビルドします。
   Xcode 9 でビルドできることを確認しています。
 
-1. Windows の場合、[Visual Studio][vstudio] を起動して vcxproj/Filter.sln を開いてビルドします。
+1. Windows の場合、[Visual Studio][vstudio] を起動して vcxproj/Filter.sln を開いてビルドします。
   Visual Studio Professional 2017 でビルドできることを確認しています。
 
 
