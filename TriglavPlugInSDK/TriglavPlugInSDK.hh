@@ -931,6 +931,13 @@ class Offscreen : public ServiceBase< OffscreenObject >
         MutableBlock( MutableBlock && ) = default;
         auto operator =( MutableBlock const & ) -> MutableBlock & = default;
         auto operator =( MutableBlock && ) -> MutableBlock & = default;
+
+        constexpr MutableBlock( Byte *address_, Int rowBytes_, Int pixelBytes_, Rect const &rect_ )
+          : address{ address_ }
+          , rowBytes{ rowBytes_ }
+          , pixelBytes{ pixelBytes_ }
+          , rect{ rect_ }
+          {}
       };
 
     struct Block
@@ -946,6 +953,13 @@ class Offscreen : public ServiceBase< OffscreenObject >
         Block( Block && ) = default;
         auto operator =( Block const & ) -> Block & = default;
         auto operator =( Block && ) -> Block & = default;
+
+        constexpr Block( Byte const *address_, Int rowBytes_, Int pixelBytes_, Rect const &rect_ )
+          : address{ address_ }
+          , rowBytes{ rowBytes_ }
+          , pixelBytes{ pixelBytes_ }
+          , rect{ rect_ }
+          {}
 
         constexpr Block( MutableBlock const &x )
           : address{ x.address }
