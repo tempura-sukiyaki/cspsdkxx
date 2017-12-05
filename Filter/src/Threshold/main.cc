@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -21,6 +22,7 @@ constexpr auto kAccessKey = toStringId( 201 );
 
 // TargetKinds
 std::vector< FilterInitializer::TargetKinds > const kTargetKinds{
+  FilterInitializer::TargetKinds::RasterLayerAlpha,
   FilterInitializer::TargetKinds::RasterLayerGrayAlpha,
   FilterInitializer::TargetKinds::RasterLayerRGBAlpha,
 };
@@ -55,6 +57,9 @@ auto makeCaption( std::weak_ptr< Server const > const &server, String::Data cons
       }
     return {};
   }
+
+auto lerp( UInt8 a, UInt8 b, UInt8 c ) noexcept -> UInt8
+  { return static_cast< UInt8 >( ( a * ( 0xFF - c ) + b * c + 0x7F ) / 0xFF ); }
 
 class Filter
   {
@@ -172,33 +177,66 @@ class Filter
 
         auto const fr = makeFilterRunner( server_ );
 
-        auto const selectAreaRect = *fr.getSelectAreaRect();
         auto const destinationOffscreen = makeOffscreenWithObject( server_, *fr.getDestinationOffscreen(), false );
 
         std::vector< Int > channelIndexs{};
         switch ( *destinationOffscreen.getChannelOrder() )
           {
+            case Offscreen::ChannelOrders::Alpha:
+              if ( std::find( kTargetKinds.begin(), kTargetKinds.end(), FilterInitializer::TargetKinds::RasterLayerAlpha ) == kTargetKinds.end() )
+                { return CallResults::Failed; }
+              break;
+
             case Offscreen::ChannelOrders::GrayAlpha:
+              if ( std::find( kTargetKinds.begin(), kTargetKinds.end(), FilterInitializer::TargetKinds::RasterLayerGrayAlpha ) == kTargetKinds.end() )
+                { return CallResults::Failed; }
               channelIndexs.push_back( 0 );
               break;
+
             case Offscreen::ChannelOrders::RGBAlpha:
+              if ( std::find( kTargetKinds.begin(), kTargetKinds.end(), FilterInitializer::TargetKinds::RasterLayerRGBAlpha ) == kTargetKinds.end() )
+                { return CallResults::Failed; }
               if ( auto const indexs = destinationOffscreen.getRGBChannelIndex() )
                 {
                   channelIndexs.push_back( std::get< 0 >( *indexs ) );
                   channelIndexs.push_back( std::get< 1 >( *indexs ) );
                   channelIndexs.push_back( std::get< 2 >( *indexs ) );
                 }
+              else
+                { return CallResults::Failed; }
               break;
-            case Offscreen::ChannelOrders::Alpha:
+
             case Offscreen::ChannelOrders::CMYKAlpha:
+              if ( std::find( kTargetKinds.begin(), kTargetKinds.end(), FilterInitializer::TargetKinds::RasterLayerCMYKAlpha ) == kTargetKinds.end() )
+                { return CallResults::Failed; }
+              if ( auto const indexs = destinationOffscreen.getCMYKChannelIndex() )
+                {
+                  channelIndexs.push_back( std::get< 0 >( *indexs ) );
+                  channelIndexs.push_back( std::get< 1 >( *indexs ) );
+                  channelIndexs.push_back( std::get< 2 >( *indexs ) );
+                  channelIndexs.push_back( std::get< 3 >( *indexs ) );
+                }
+              else
+                { return CallResults::Failed; }
+              break;
+
             case Offscreen::ChannelOrders::BinarizationAlpha:
+              if ( std::find( kTargetKinds.begin(), kTargetKinds.end(), FilterInitializer::TargetKinds::RasterLayerBinarizationAlpha ) == kTargetKinds.end() )
+                { return CallResults::Failed; }
+              break;
+
             case Offscreen::ChannelOrders::BinarizationGrayAlpha:
+              if ( std::find( kTargetKinds.begin(), kTargetKinds.end(), FilterInitializer::TargetKinds::RasterLayerBinarizationGrayAlpha ) == kTargetKinds.end() )
+                { return CallResults::Failed; }
+              channelIndexs.push_back( 0 );
+              break;
+
             case Offscreen::ChannelOrders::SelectArea:
             case Offscreen::ChannelOrders::Plane:
-              break;
+              return CallResults::Failed;
           }
-        if ( channelIndexs.empty() )
-          { return CallResults::Failed; }
+
+        auto const selectAreaRect = *fr.getSelectAreaRect();
 
         auto const count = *destinationOffscreen.getBlockRectCount( selectAreaRect );
         fr.setProgressTotal( count );
@@ -214,26 +252,29 @@ class Filter
                 continue;
               }
 
-            auto const rect = *destinationOffscreen.getBlockRect( index, selectAreaRect );
-            Point const pos{ rect.left, rect.top };
+            auto const blockRect = *destinationOffscreen.getBlockRect( index, selectAreaRect );
+            Point const blockPos{ blockRect.left, blockRect.top };
 
-            auto const alphaBlock = destinationOffscreen.getMutableBlockAlpha( pos );
-            auto const imageBlock = destinationOffscreen.getMutableBlockImage( pos );
-
-            if ( alphaBlock && imageBlock )
+            if ( auto const blockAlpha = destinationOffscreen.getMutableBlockAlpha( blockPos ) )
               {
                 static Byte const one = toByte( 0xFF );
-                APIResult< Offscreen::Block > selectAreaBlock = Offscreen::Block{ &one, 0, 0, alphaBlock->rect };
+                APIResult< Offscreen::Block > blockSelectArea = Offscreen::Block{ &one, 0, 0, blockAlpha->rect };
                 if ( *fr.hasSelectAreaOffscreen() )
                   {
-                    auto const selectAreaOffscreen = makeOffscreenWithObject(server_, *fr.getSelectAreaOffscreen(), false);
-                    selectAreaBlock = selectAreaOffscreen.getBlockSelectArea( pos );
+                    auto const selectAreaOffscreen = makeOffscreenWithObject( server_, *fr.getSelectAreaOffscreen(), false );
+                    blockSelectArea = selectAreaOffscreen.getBlockSelectArea( blockPos );
                   }
-                if ( selectAreaBlock )
-                  { executeBlock( rect, *selectAreaBlock, *alphaBlock, *imageBlock, channelIndexs ); }
+                if ( blockSelectArea )
+                  {
+                    if ( channelIndexs.empty() )
+                      { executeBlock( blockRect, *blockSelectArea, *blockAlpha ); }
+                    else if ( auto const blockImage = destinationOffscreen.getMutableBlockImage( blockPos )
+                         )
+                      { executeBlock( blockRect, *blockSelectArea, *blockAlpha, *blockImage, channelIndexs ); }
+                  }
               }
 
-            fr.updateDestinationOffscreenRect( rect );
+            fr.updateDestinationOffscreenRect( blockRect );
             ++index;
             fr.setProgressDone( index );
           }
@@ -268,6 +309,7 @@ class Filter
                 cbResult = self->onButtonPushed( prop, k );
                 break;
             case Property::CallBackNotifys::ValueCheck:
+                cbResult = static_cast< Property::CallBackResults >( *result );
                 break;
             case Property::CallBackNotifys::ValueChanged:
                 cbResult = self->onValueChanged( prop, k );
@@ -279,7 +321,11 @@ class Filter
 
     auto onButtonPushed( Property const &prop, Property::ItemKey itemKey ) noexcept -> Property::CallBackResults
       {
-        // do nothing
+        switch ( itemKey )
+          {
+            default:
+              break;
+          }
         return Property::CallBackResults::NoModify;
       }
 
@@ -304,27 +350,45 @@ class Filter
         return Property::CallBackResults::NoModify;
       }
 
-    void executeBlock( Rect const &rect, Offscreen::Block const &selectAreaBlock, Offscreen::MutableBlock const &alphaBlock, Offscreen::MutableBlock const &imageBlock, std::vector< Int > const &channelIndexs ) noexcept
+    void executeBlock( Rect const &blockRect, Offscreen::Block const &blockSelectArea, Offscreen::MutableBlock const &blockAlpha ) noexcept
       {
-        for ( auto y = rect.top; y < rect.bottom; ++y )
+        for ( auto y = blockRect.top; y < blockRect.bottom; ++y )
           {
-            auto select = reinterpret_cast< UInt8 const * >( selectAreaBlock.address + ( selectAreaBlock.rowBytes * ( y - rect.top ) ) );
-            //auto alpha = reinterpret_cast< UInt8 * >( alphaBlock.address + ( alphaBlock.rowBytes * ( y - rect.top ) ) );
-            auto image = reinterpret_cast< UInt8 * >( imageBlock.address + ( imageBlock.rowBytes * ( y - rect.top ) ) );
+            auto selectPtr = reinterpret_cast< UInt8 const * >( blockSelectArea.address + ( blockSelectArea.rowBytes * ( y - blockRect.top ) ) );
+            auto alphaPtr = reinterpret_cast< UInt8 * >( blockAlpha.address + ( blockAlpha.rowBytes * ( y - blockRect.top ) ) );
+            for ( auto x = blockRect.left; x < blockRect.right; ++x )
+              {
+                UInt8 const ch = *alphaPtr < threshold_ ? 0x00 : 0xFF;
+                if ( *selectPtr == 0xFF )
+                  { *alphaPtr = ch; }
+                else if ( *selectPtr )
+                  { *alphaPtr = lerp( *alphaPtr, ch, *selectPtr ); }
+                selectPtr += blockSelectArea.pixelBytes;
+                alphaPtr += blockAlpha.pixelBytes;
+              }
+          }
+      }
 
-            for ( auto x = rect.left; x < rect.right; ++x )
+    void executeBlock( Rect const &blockRect, Offscreen::Block const &blockSelectArea, Offscreen::MutableBlock const &blockAlpha, Offscreen::MutableBlock const &blockImage, std::vector< Int > const &channelIndexs ) noexcept
+      {
+        for ( auto y = blockRect.top; y < blockRect.bottom; ++y )
+          {
+            auto selectPtr = reinterpret_cast< UInt8 const * >( blockSelectArea.address + ( blockSelectArea.rowBytes * ( y - blockRect.top ) ) );
+            auto alphaPtr = reinterpret_cast< UInt8 * >( blockAlpha.address + ( blockAlpha.rowBytes * ( y - blockRect.top ) ) );
+            auto imagePtr = reinterpret_cast< UInt8 * >( blockImage.address + ( blockImage.rowBytes * ( y - blockRect.top ) ) );
+            for ( auto x = blockRect.left; x < blockRect.right; ++x )
               {
                 for ( auto &&i : channelIndexs )
                   {
-                    auto ch = image[ i ] < threshold_ ? 0x00 : 0xFF;
-                    if ( *select == 0xFF )
-                      { image[ i ] = static_cast< UInt8 >( ch ); }
-                    else if ( *select )
-                      { image[ i ] = static_cast< UInt8 >( ( image[ i ] * ( 0xFF - *select ) + ch * *select ) / 0xFF ); }
+                    UInt8 const ch = imagePtr[ i ] < threshold_ ? 0x00 : 0xFF;
+                    if ( *selectPtr == 0xFF )
+                      { imagePtr[ i ] = ch; }
+                    else if ( *selectPtr )
+                      { imagePtr[ i ] = lerp( imagePtr[ i ], ch, *selectPtr ); }
                   }
-                select += selectAreaBlock.pixelBytes;
-                //alpha += alphaBlock.pixelBytes;
-                image += imageBlock.pixelBytes;
+                selectPtr += blockSelectArea.pixelBytes;
+                alphaPtr += blockAlpha.pixelBytes;
+                imagePtr += blockImage.pixelBytes;
               }
           }
       }
